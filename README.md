@@ -42,6 +42,10 @@ index d3a6392..9742fac 100644
 
 Known issues:
 - barely working
-- currently, the right channel is just looped back to the host as fast as possible, while the left channel into the host comes from the Bela OUTPUT
 - the clock of the ALSA device drifts from the Bela one. This means that underruns or latency increasing over time is possible
-- the clocks are not synced at startup, so for each time you start it, latency will change. Works best for Bela blocsizes of 128
+- only works when Bela blocksize and ALSA blocksize are the same
+- sends inputs to host and receives outputs from host
+- ALSA is the master clock here, so you will get occasional dropouts when the clocks drift
+- requires rtdm_pruss_irq with `rtdm_event_pulse()` instead of `_signal()`
+- when the glitch occurs, ideally the phase of the McASP loop should be reset to 0, however this does not happen. It can be mitigated by running render() at smaller blocksizes and reading and writing from/to the pipe at different blocksizes, keeping track of a reading pointer.
+
