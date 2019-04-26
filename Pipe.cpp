@@ -89,11 +89,51 @@ ssize_t Pipe::_readNonRt(void* ptr, size_t size)
 #undef NDEBUG
 #include <assert.h>
 #include "test_utilities.h"
+#include <Bela.h>  // auxiliaryTask
+
+static int testDone;
+
+static void nonRtThread(void* arg)
+{
+	Pipe* pipe = (Pipe*)arg;
+	std::array<float, 1024> rec;
+	int count;
+	int read;
+
+	count = 123;
+
+	printf("waiting for %d\n", count);
+	read = pipe->readNonRt(rec.data(), count);
+	printf("received %d\n", read);
+
+	printf("waiting for %d\n", count);
+	read = pipe->readNonRt(rec.data(), count);
+	printf("received %d\n", read);
+
+	testDone++;
+}
+
+static void rtThread(void* arg)
+{
+	Pipe* pipe = (Pipe*)arg;
+	std::array<float, 1024> send;
+	int count, ret;
+	count = 123;
+	printf("sending %d\n", count);
+	ret = pipe->writeRt(send.data(), count);
+	printf("sent: %d\n", ret);
+	usleep(100000);
+
+	count = 100;
+	printf("sending %d\n", count);
+	ret = pipe->writeRt(send.data(), count);
+	printf("sent: %d\n", ret);
+	testDone++;
+}
 
 int testPipe()
 {
 	Pipe pipe("assaaa", 8192, false);
-	pipe.setRtBlocking(true);
 	std::array<float, 1000> payload;
 	{
 		//Rt to NonRt
@@ -123,7 +163,13 @@ int testPipe()
 		assert(ret != rec.size());
 		assert(ret < 0);
 	}
+	Pipe bpipe("blocking", 8192, true);
+	testDone = 0;
+	Bela_scheduleAuxiliaryTask( Bela_createAuxiliaryTask(nonRtThread, 50, "nonrt", &bpipe));
+	Bela_scheduleAuxiliaryTask( Bela_createAuxiliaryTask(rtThread, 50, "rt", &bpipe));
 
+	while(testDone != 2)
+		usleep(100000);
 	printf("Test for Pipe successful\n");
 	exit (0);
 }

@@ -1,6 +1,6 @@
 #include <vector>
 #include <array>
-#include <Bela.h> // AuxiliaryTask
+#include <Bela.h>
 
 //#define DEBUG
 
@@ -18,9 +18,11 @@ Gpio gpio2;
 
 AlsaIo alsaIo;
 Scope scope;
+int testPipe();
 
 bool setup(BelaContext* context, void*)
 {
+	//exit(testPipe());
 	//exit(testCircularBuffer());
 #ifdef DEBUG
 	gpio0.open(30, OUTPUT);
