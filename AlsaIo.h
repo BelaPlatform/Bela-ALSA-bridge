@@ -1,7 +1,7 @@
 #pragma once
 
 #include <zita-alsa-pcmi.h>
-#include "Pipe.h"
+#include <libraries/Pipe/Pipe.h>
 #include "CircularBuffer.h"
 #include <Bela.h> // for AuxiliaryTask, which should anyhow be replaced
 

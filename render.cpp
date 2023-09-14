@@ -13,7 +13,7 @@ Gpio gpio2;
 
 #include <Bela.h>
 #include <math.h>
-#include <Scope.h>
+#include <libraries/Scope/Scope.h>
 #include "AlsaIo.h"
 
 AlsaIo alsaIo;
